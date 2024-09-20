@@ -7,13 +7,16 @@ import './App.css';
 const App = () => {
   const [searchField, setSearchField] = useState('');
   const [cars, setcars] = useState([]);
-  const [filteredcars, setFiltercars] = useState(cars);
+  const [filteredCars, setFiltercars] = useState(cars);
+  const [sortedCars, setSortedCars] = useState(false);
+  const [value, setValue] = useState();
 
   useEffect(() => {
     fetch('/data.json')
       .then((response) => response.json())
       .then((users) => setcars(users));
   }, []);
+
   const flattencar = (car) => {
     return `
       ${car.name}
@@ -25,31 +28,31 @@ const App = () => {
       ${car.year}
     `.toLocaleLowerCase();
   };
-//   json.sort(function(a, b){
-//     return a.id - b.id;
-// });
+  
   useEffect(() => {
-    const newFilteredcars = cars.filter((car) => {
+    const newfilteredCars = cars.filter((car) => {
       const carData = flattencar(car);
-      return carData.includes(searchField);
+      const isViperMatch = !sortedCars || carData.includes(value);
+      return isViperMatch && carData.includes(searchField);
     });
-    setFiltercars(newFilteredcars.sort(function(a,b) {
+
+    setFiltercars(newfilteredCars.sort(function(a,b) {
       return a.name.localeCompare(b.name), a.model.localeCompare(b.model)
     }));
-  }, [cars, searchField]);
+    
+  }, [cars, searchField, sortedCars]);
   
-  const sort = () => {
-    cars.filter(car => car.price === 10000);
-    // setFiltercars("Acura")
-    //Price == 1000
-    // function sortCars() {
-    //   // Filter the cars priced at $10,000
-      
-      
-    //   // Sort alphabetically by name
-    //   filteredCars.sort((a, b) => a.name.localeCompare(b.name));
-    //   }
+  const sort = (param) => {
+    setSortedCars(true);
+    setValue(param)
+    console.log(param + ' filter');
   }
+
+  const clearFilters = () => {
+    setSortedCars(false);
+    console.log('Cleared filters');
+  }
+
   const onSearchChange = (event) => {
     const searchFieldString = event.target.value.toLocaleLowerCase();
     setSearchField(searchFieldString);
@@ -59,14 +62,17 @@ const App = () => {
   return (
     <div className='App'>
       <h1 className='app-title'>Cars Rolodex</h1>
-      <button onClick={sort}>Sort</button>
+      <button onClick={() => sort("viper")}>Filter by Viper</button>
+      <button onClick={clearFilters}>Clear filters</button>
+      <button onClick={() => sort(10000)}>Price</button>
+      
 
       <SearchBox
         className='cars-search-box'
         onChangeHandler={onSearchChange}
         placeholder='search cars'
       />
-      <CardList cars={filteredcars} />
+      <CardList cars={filteredCars} />
     </div>
   );
 };

@@ -4,6 +4,7 @@ const Card = ({ car }) => {
   let USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    maximumSignificantDigits: 10,
   });
 
   let newModel = 0;
